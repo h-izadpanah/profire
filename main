@@ -1,0 +1,78 @@
+#!/bin/bash
+bash ._prepare
+clear
+red="$(tput setaf 1)"
+blue="$(tput setaf 4)"
+blink="$(tput blink)"
+yellow="$(tput setaf 3)"
+green="$(tput setaf 2)"
+normal="$(tput sgr0)"
+bold="$(tput bold)"
+comand=""
+echo
+echo "${bold}${blue} Documentation and update are available at:${normal} ${bold}https://github.com/h-izadpanah/profire${normal}"
+echo
+echo "     ${bold}${green}Maintainer : Hossein Izadpanah <hesizzad@gmail>  ${blue}Germany- WINTER 2020${normal}"
+echo " |------------------------------------------------------------------------|"
+echo " |				${bold}${blue}MAIN SECTION ${normal}				  |"
+echo " | -------- //////////////////// ********* //////////////////// --------- |"
+echo " | ${bold}${yellow}This script provides the CRUD on iptables . Press the related number.  ${normal}|"
+echo " | +++++++++++++++++++++++ ====================== +++++++++++++++++++++++ |"
+echo " | ${bold}${green} 		Press ${red}ctrl + c${normal}${green}${bold} to exit the script${normal}		 	  |"
+echo
+echo "				${bold}SELECT AN ACTION ${noraml}"
+echo
+echo " ${bold}${green}1 - ADD${normal} a new iptables rule"
+echo " ${bold}${yellow}2 - EDIT${normal} a rule in iptables"
+echo " ${bold}${red}3 - DELETE${normal} a rule in iptables"
+echo " ${bold}4 - EXIT | X or any other keys or words rather than aboves ${normal}"
+echo ""
+read -p "	${bold}Type Your Action [ADD | EDIT | DELETE] :${noraml}" action
+act="${action^^}"
+if [ ! -z "$act" ]
+	then #start of ADD
+	if [ $act == "A" ] || [ $act == "ADD" ] || [ $act == "1" ]
+	then # list of the current chains in the iptables
+		ls data/firewall/loca/rules/
+	read -p "${bold}${blue} SELECT A CHAIN FROM THE LIST TO ADD RULE TO ${green}[ONLY NAMES ARE ACCEPTED]${normal}" chai
+	cha="${chai^^}"
+		if [ ! -z "$cha" ]
+		then #call the add script
+			clear
+			bash ._add $cha
+		else # Fails because of the bad or empty input
+		echo "${bold}${red}The PROCCESS HAS BEEN FAILD ${normal}"; exit;
+		fi
+
+	fi # end of ADD ------- Start of EDIT
+	if [ $act == "E" ] || [ $act == "EDIT" ] || [ $act == "2" ]
+	then
+	ls data/firewall/loca/rules/
+	read -p "${bold}${blue} SELECT A CHAIN FROM THE LIST TO EDIT RULE FROM ${yellow}[ONLY NAMES ARE ACCEPTED]${normal}" edit
+	edi="${edit^^}"
+		if [ ! -z "$edi" ]
+		then # call the edit script
+			clear;
+			bash ._edit $edi
+		else  # Fails because of the bad or empty input
+		echo "${bold}${red}The PROCCESS HAS BEEN FAILD ${normal}"; exit;
+		fi
+	fi # End of EDIT ------ Start of DELETE
+	if [ $act == "D" ] || [ $act == "DELETE" ] || [ $act == "3" ]
+	then
+	ls data/firewall/loca/rules/
+	read -p "${bold}${blue} SELECT A CHAIN FROM THE LIST TO DELETE RULE FROM ${red}[ONLY NAMES ARE ACCEPTED]${normal}" delete
+	del="${delete^^}"
+		if [ ! -z "$del" ]
+		then   #call the delete script
+			clear
+			bash ._delete $del
+		else  # Fails because of the bad or empty input
+		echo "${bold}${red}The PROCCESS HAS BEEN FAILD ${normal}"; exit;
+		fi
+	fi # END of the DELETE -------- start of EXIT
+	if [ $act == "X" ] || [ $act == "EXIT" ] || [ $act == "4" ]
+        then
+             exit;
+        fi
+fi

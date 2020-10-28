@@ -1,0 +1,92 @@
+#!/bin/bash
+
+chain="${1:-DOCKER-USER}"
+red="$(tput setaf 1)"
+blue="$(tput setaf 4)"
+blink="$(tput blink)"
+green="$(tput setaf 2)"
+normal="$(tput sgr0)"
+bold="$(tput bold)"
+comand=""
+echo "This script will ALTER the IPTABLES recodrs"
+echo "IN order to choose a record to EDIT You will see the records in chain:${blue}${bold} ${chain^^} ${normal}${bold}"
+iptables -L ${chain^^} --line-numbers -n | column -t -x
+echo "--------------------////////////////////--------------------${normal}"
+echo "You can exit this script by pressing ${red}${bold}ctrl+C ${normal}any time."
+printf "Select a record number from the list above to edit ${red}${bold}${bold} ONLY NUMERS : ${normal}"
+read edit
+	if [[ ! -z "$edit" ]]
+		then
+		comand+=" $edit"
+	fi
+#echo $comand
+printf "Set the protocol tcp | udp ${bold}${blue}( default is empty): ${normal}"
+read proto
+	if [[ ! -z "$proto" ]]
+		then
+		comand+=" -p $proto"
+	else
+		comand+=" -p tcp"
+	fi
+#echo $comand
+printf "Set the Source Address ${bold}${blue}(default is 0.0.0.0/0): ${normal}"
+read source
+	if [[ ! -z "$source" ]]
+		then
+		comand+=" -s $source"
+	fi
+#echo $comand
+printf "Set the Source port ${bold}${blue}(default is empty): ${normal}"
+read sport
+	if [[ ! -z "$sport" ]]
+		then
+		comand+=" --sport $sport"
+	fi
+#echo $comand
+printf "Set the Destination Address ${bold}${blue}(default is 0.0.0.0/0) : ${normal}"
+read destination
+	if [[ ! -z "$destination" ]]
+		then
+		comand+=" -d $destination"
+	fi
+#echo $comand
+printf "Set the distination port ${bold}${blue}(default is empty) : ${normal}"
+read dport
+        if [[ ! -z "$dport" ]]
+                then
+                comand+=" --dport $dport"
+        fi
+#echo $comand
+printf "Set the Action ACCEPT | DROP ${bold}${blue}(default is ACCEPT) :${normal}"
+read action
+	if [[ ! -z "$action" ]]
+		then
+		comand+=" -j ${action^^}"
+	else
+		comand+=" -j ACCEPT"
+	fi
+#echo $comand
+#echo iptables -R ${chain^^} $comand
+if iptables -R ${chain^^} $comand
+	then
+		echo "${bold}${green}${blink}The record has been updated successfuly ${normal}${bold}${blue}"
+		iptables -L ${chain^^} --line-numbers -n | column -t -x
+	else
+		echo "${bold}${red} Proccess Faild ${normal}"
+		exit;
+fi
+echo "Would you like to start over to edit another records?"
+read -p "${green}Start over Yes | NO (default is NO): ${normal}" over
+ov="${over^^}"
+if [ -z "$ov" ]
+then
+	exit;
+else
+if [ $ov == "Y" ] || [ $ov == "YES" ]
+	then
+	read -p "${blue}${bold} Choose Chain to edit default is DOCKER-USER : ${normal}" cha	clear
+	bash main
+else
+	exit;
+fi
+fi

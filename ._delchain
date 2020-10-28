@@ -1,0 +1,4 @@
+for i in $( iptables -S | awk '{print $2}' | uniq );
+do
+iptables -F $i && iptables -Z $i && iptables -X $i;
+done

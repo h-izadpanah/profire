@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#set default user to {izadpanah} if not presented during the call !
+user=${1:-izadpanah}
+
+# Set default group to {izadpanah} if not presendted during the call !
+group=${2:-izadpanah}
+
+# Retrive the Chain names from the iptables and save it to data/chains
+if ( iptables -L -n | grep -i chain  | sed "s/Chain //g" | sed "s/ (.*//g" > data/firewall/loca/chain/chains );
+then
+	echo "SUCCESS";
+else
+	echo "PROCCESS FAILD"; exit;
+fi
+
+# set the chains file name as  filename variable
+filename="data/firewall/loca/chain/chains"
+
+# read durch the file and read each line and retrive the rules in the chan and save them in seperate files using chain name
+while IFS= read -r line
+  do
+	# the -n parameter help the code execute in realtime and without any extra proccesses from iptables to retrive the helpers name
+	# if you remove the -n parameter you will see that the code needs so long time to accomplished
+	# anothe if statement this point is apropreated in order to inform the user the current stage of script ## if ^^^
+     	iptables -L $line -nv --line-numbers | column -t -x > data/firewall/loca/rules/$line
+
+done < $filename
+
+# change the ownership in order to be accessed from third parties such as www-data or any other proper user you want to access
+chown -R $user:$group data/

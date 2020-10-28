@@ -1,0 +1,90 @@
+#! /bin/bash
+chain="${1:-DOCKER-USER}"
+cha=${chain^^}
+echo "Maintainer : Hossein Izadpanah <hesizzad@gmail.com>"
+echo "This script is published without any Garantee"
+echo "This program is used to add insert into Iptables"
+echo "--- Chain $cha"
+red="$(tput setaf 1)"
+blue="$(tput setaf 4)"
+blink="$(tput blink)"
+green="$(tput setaf 2)"
+normal="$(tput sgr0)"
+bold="$(tput bold)"
+comand=""
+printf "Set the insert mode  I =>Insert | A => Append ${blue}${bold}(default is A=Append):${normal}"
+read ins
+	if [[ ! -z "$ins" ]]
+	then
+		insert=" -${ins^^}"
+	else
+		insert=" -A"
+	fi
+printf "set the protocol tcp|udp|icmp.... ${blue}${bold}(default is all):${normal}"
+read proto
+	if [[ ! -z "$proto" ]]
+	then
+	comand+=" -p $proto"
+	fi
+printf "set the source port number ${blue}${bold}(default is all):${normal}"
+read sport
+	if [[ ! -z "$sport" ]]
+	then
+	comand+=" --sport $sport"
+	fi
+#echo ">>>>->"
+printf "set the source address ${blue}${bold}(default is any 0.0.0.0/0):${normal}"
+read sadd
+	if [[ ! -z "$sadd" ]]
+	then
+	comand+=" -s $sadd"
+	fi
+#echo ">>>>>->"
+printf "set the distination port ${blue}${bold}(default is all):${normal}"
+read dport
+        if [[ ! -z "$dport" ]]
+        then
+        comand+=" --dport $dport"
+        fi
+
+printf "set the distnation address ${blue}${bold}(default is any 0.0.0.0/0):${normal}"
+read dadd
+	if [[ ! -z "$dadd" ]]
+	then
+	comand+=" -d $dadd"
+	fi
+#echo ">>>>>>>>>>>->"
+printf "set the action ACCEPT | DROP ${blue}${bold}(default is ACCEPT):${normal}"
+read act
+	if [[ ! -z "$act" ]]
+		then
+		comand+=" -j ${act^^}"
+	else
+		comand+=" -j ACCEPT"
+	fi
+#echo ">>>>>>>>>>>>>>>>>->"
+if iptables $insert $cha $comand && netfilter-persistent save
+then
+clear
+echo "${blink}${bold}${green}------------------------ SUCCESS ---------------------${normal}"
+else
+echo "${red}${bold}${blink} ------------${$}-------- YOU HAVE ERROR IN YOUR INPUT ARGUMENTS -------------------- ${normal}"
+exit;
+fi
+echo "${blue}${bold}The iptables Entries are :"
+iptables -L $cha -n --line-numbers
+echo "${green}${bold}THE RULE SUCCESSFULLY ADDED TO THE FIREWALL :)${normal}"
+printf "Would you like to more extra rule? YES | NO ${blue}${bold}(default is NO): ${normal}"
+read cont
+co="${cont^^}"
+if [[ -z "$co" ]]
+	then
+		exit;
+else
+if [ $co == "Y" ] || [ $co == "YES" ]
+	then 
+		bash main
+else
+	exit;
+fi
+fi

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+red="$(tput setaf 1)"
+blue="$(tput setaf 4)"
+blink="$(tput blink)"
+yellow="$(tput setaf 3)"
+green="$(tput setaf 2)"
+normal="$(tput sgr0)"
+bold="$(tput bold)"
+comand=""
+chain="${1:-DOCKER-USER}"
+echo "This script is provided in order to delete rules in${bold}${red} ${chain^^}${normal} chain in IPTABLES"
+echo "			---------------////////// ---------------"
+echo "			${red}${bold}Please be carefull with the rules ${normal}"
+echo "			--------------- ////////// ---------------"
+echo "Choose the rule number you want to delete and verify your proper action by typing y| yes or n|no"
+echo "		${bold}${green} /////////////// ---------- /////////////// ---------- ////////// ${normal}"
+iptables -L ${chain^^} --line-numbers -n | column -t -x
+echo "${bold}${yellow} 	Select the rule number to delete ${normal}	"
+read -p "Rule number to delete:" rul
+echo "${bold}${red} YOU WILL DELETE THE RULE NUMBER $rul FROM THE LIST ${normal}"
+read -p "Verify your action by typing ${bold}${yellow}y|yes or n|no :${normal}" yesno
+yen="${yesno^^}"
+if [ ! -z "yesno" ]
+	then
+		if [ $yen == "Y" ] || [ $yen == "YES" ]
+		then
+			if iptables -D ${chain^^} $rul
+			then
+				echo "The rule number $rul has been delete successfuly "
+			else
+				echo "${bold}${red}The Proccess faild ${normal}"
+				exit;
+			fi
+			else
+				echo "You have terminated the deletion of the rul $rul"
+		fi
+fi
+echo "${bold}		--------------- /////////////// --------------- "
+echo "Would you like to start over to edit another records? ${normal}"
+read -p "${bold}${blue}Start over Yes | NO (default is NO): ${normal}" over
+ov="${over^^}"
+if [ -z "$ov" ]
+then
+        exit;
+else
+if [ $ov == "Y" ] || [ $ov == "YES" ]
+        then
+        bash main
+else
+        exit;
+fi
+fi
